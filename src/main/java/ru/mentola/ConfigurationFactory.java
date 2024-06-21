@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import ru.mentola.api.ConfigurationField;
+import ru.mentola.api.ConfigurationModel;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -82,6 +83,7 @@ public class ConfigurationFactory {
             else {
                 if (fieldType.equals(String.class)) return file.getString(path);
                 if (fieldType.equals(List.class)) return file.getList(path);
+                if (fieldType.equals(ConfigurationModel.class)) return build(file, field.getType());
             }
         }
         return null;
