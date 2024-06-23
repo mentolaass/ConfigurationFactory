@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import ru.mentola.api.ConfigurationField;
 import ru.mentola.api.ConfigurationModel;
+import ru.mentola.util.Util;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -64,28 +65,30 @@ public class ConfigurationFactory {
      */
     private Object[] getFileFieldValues(final FileConfiguration file, final Field[] fields) {
         return Arrays.stream(fields)
-               .map((field) -> getFileFieldValue(file, field, field.getAnnotation(ConfigurationField.class).path()))
+               .map((field) -> getFileFieldValue(file, field, field.getAnnotation(ConfigurationField.class)))
                .toArray();
     }
     /**
      * Get file field value from the given Bukkit configuration file and field path.
      * @param file Bukkit configuration file.
      * @param field Field with {@link ConfigurationField} annotation.
-     * @param path Field path.
+     * @param configurationField Configuration field annotation.
      * @return File field value.
      */
     @Nullable
-    private Object getFileFieldValue(final FileConfiguration file, final Field field, final String path) {
+    private Object getFileFieldValue(final FileConfiguration file, final Field field, final ConfigurationField configurationField) {
         final Class<?> fieldType = field.getType();
-        if (file.contains(path)) {
+        if (file.contains(configurationField.path())) {
             if (fieldType.isPrimitive())
-                return getPrimitiveFieldValue(file, fieldType, path);
+                return getPrimitiveFieldValue(file, fieldType, configurationField.path());
             else {
-                if (fieldType.equals(String.class)) return file.getString(path);
-                if (fieldType.equals(List.class)) return file.getList(path);
+                if (fieldType.equals(String.class)) return file.getString(configurationField.path());
+                if (fieldType.equals(List.class)) return file.getList(configurationField.path());
                 if (fieldType.equals(ConfigurationModel.class)) return build(file, field.getType());
             }
         }
+        if (!configurationField.defaultValue().isEmpty())
+            return Util.parsePrimitiveObjectFromString(configurationField.defaultValue());
         return null;
     }
     /**
