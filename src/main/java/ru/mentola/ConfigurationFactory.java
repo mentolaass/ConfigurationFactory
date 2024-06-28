@@ -84,7 +84,7 @@ public class ConfigurationFactory {
             else {
                 if (fieldType.equals(String.class)) return file.getString(configurationField.path());
                 if (fieldType.equals(List.class)) return file.getList(configurationField.path());
-                if (fieldType.equals(ConfigurationModel.class)) return build(file, field.getType());
+                if (ConfigurationModel.class.isAssignableFrom(fieldType)) return build(file, field.getType());
             }
         }
         if (!configurationField.defaultValue().isEmpty())
